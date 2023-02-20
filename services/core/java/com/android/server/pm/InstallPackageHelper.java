@@ -3492,7 +3492,8 @@ final class InstallPackageHelper {
             }
 
             if (mPackagesToBeDisabled.values() != null &&
-                    mPackagesToBeDisabled.values().contains(file.toString())) {
+                    (mPackagesToBeDisabled.values().contains(file.toString()) ||
+                    mPackagesToBeDisabled.values().stream().anyMatch(file.toString()::contains))) {
                 // Ignore entries contained in {@link #mPackagesToBeDisabled}
                 Slog.d(TAG, "ignoring package: " + file);
                 continue;
