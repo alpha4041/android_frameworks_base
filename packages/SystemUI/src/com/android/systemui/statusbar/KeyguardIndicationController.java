@@ -943,6 +943,7 @@ public class KeyguardIndicationController {
      * Assumption: device is charging
      */
     protected String computePowerIndication() {
+        BatteryManager batteryManager = (BatteryManager) mContext.getSystemService(Context.BATTERY_SERVICE);
         int chargingId;
         if (mBatteryOverheated) {
             chargingId = R.string.keyguard_plugged_in_charging_limited;
@@ -961,7 +962,7 @@ public class KeyguardIndicationController {
                             : R.string.keyguard_plugged_in_charging_fast;
                     break;
                 case BatteryStatus.CHARGING_SLOWLY:
-                    chargingId = hasChargingTime
+                   chargingId = hasChargingTime
                             ? R.string.keyguard_indication_charging_time_slowly
                             : R.string.keyguard_plugged_in_charging_slowly;
                     break;
@@ -985,57 +986,68 @@ public class KeyguardIndicationController {
                     : R.string.keyguard_plugged_in;
         }
 
-	boolean isAdaptiveCharging = Settings.Secure.getIntForUser(mContext.getContentResolver(),
-            Settings.Secure.SYSTEM_MANAGER_AGGRESSIVE_IDLE_MODE, 0, UserHandle.USER_CURRENT) == 1;
+        boolean isAdaptiveCharging = Settings.Secure.getIntForUser(mContext.getContentResolver(),
+                Settings.Secure.SYSTEM_MANAGER_AGGRESSIVE_IDLE_MODE, 0, UserHandle.USER_CURRENT) == 1;
 
-	if (isAdaptiveCharging) {
-            chargingId = hasChargingTime
-                            ? R.string.keyguard_indication_adaptive_charging_time
-                            : R.string.keyguard_plugged_in_adaptive_charging;
-	}
+        if (isAdaptiveCharging) {
+                chargingId = hasChargingTime
+                                ? R.string.keyguard_indication_adaptive_charging_time
+                                : R.string.keyguard_plugged_in_adaptive_charging;
+	    }
 
         String batteryInfo = "";
-        int current = 0;
-        double voltage = 0;
-        boolean showbatteryInfo = Settings.System.getIntForUser(mContext.getContentResolver(),
-            Settings.System.LOCKSCREEN_BATTERY_INFO, 1, UserHandle.USER_CURRENT) == 1;
-         if (showbatteryInfo) {
-            if (mChargingCurrent > 0) {
-                BatteryManager batteryManager = (BatteryManager) mContext.getSystemService(Context.BATTERY_SERVICE);
-                int chargingCurrent = Math.abs(batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW));
 
-                int currentInMilliamps = chargingCurrent / 1000;
+        boolean showbatteryInfo = Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.LOCKSCREEN_BATTERY_INFO, 1, UserHandle.USER_CURRENT) == 1;
+
+        if (showbatteryInfo) {
+            if (batteryManager != null) {
+                int chargingCurrent = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
+                IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+                Intent batteryStatus = mContext.registerReceiver(null, ifilter);
+                int chargingVoltage = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0)
+                        : 0;
+                int chargingTemperature = batteryStatus != null
+                        ? batteryStatus.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0)
+                        : 0;
+                double current = chargingCurrent / 1000.0;
+                double voltage = chargingVoltage / 1000.0;
+                double power = voltage * (current / 1000.0);
+                int currentInMilliamps = (int) current;
+
+                currentInMilliamps = Math.max(currentInMilliamps, 0);
+                power = Math.max(power, 0);
+                voltage = Math.max(voltage, 0);
 
                 batteryInfo = currentInMilliamps + "mA";
-            }
-            if (mChargingVoltage > 0 && mChargingCurrent > 0) {
-                voltage = mChargingVoltage / 1000 / 1000;
-                batteryInfo = (batteryInfo == "" ? "" : batteryInfo + " · ") +
-                        String.format("%.1f" , ((double) current / 1000) * voltage) + "W";
-            }
-            if (mChargingVoltage > 0) {
-                batteryInfo = (batteryInfo == "" ? "" : batteryInfo + " · ") +
-                        String.format("%.1f" , voltage) + "V";
-            }
-            if (mTemperature > 0) {
-                batteryInfo = (batteryInfo == "" ? "" : batteryInfo + " · ") +
-                        mTemperature / 10 + "°C";
-            }
-            if (batteryInfo != "") {
-                batteryInfo = "\n" + batteryInfo;
+                batteryInfo += " · " + String.format("%.1f", power) + "W";
+                batteryInfo += " · " + String.format("%.1f", voltage) + "V";
+
+                if (chargingTemperature > Integer.MIN_VALUE) {
+                    double temperature = chargingTemperature / 10.0;
+                    temperature = Math.max(temperature, 0);
+                    batteryInfo += " · " + temperature + "°C";
+                }
+
+                if (!batteryInfo.isEmpty()) {
+                    batteryInfo = "\n" + batteryInfo;
+                }
             }
         }
 
-        String percentage = NumberFormat.getPercentInstance().format(mBatteryLevel / 100f);
-        if (hasChargingTime) {
-            String chargingTimeFormatted = Formatter.formatShortElapsedTimeRoundingUpToMinutes(
-                    mContext, mChargingTimeRemaining);
-            String chargingText = mContext.getResources().getString(chargingId, chargingTimeFormatted,
-                    percentage);
-            return chargingText + batteryInfo;
+        if (batteryManager != null) {
+            String percentage = NumberFormat.getPercentInstance().format(mBatteryLevel / 100f);
+            if (hasChargingTime) {
+                String chargingTimeFormatted = Formatter.formatShortElapsedTimeRoundingUpToMinutes(mContext,
+                        mChargingTimeRemaining);
+                String chargingText = mContext.getResources().getString(chargingId, chargingTimeFormatted, percentage);
+                return chargingText + batteryInfo;
+            } else {
+                String chargingText = mContext.getResources().getString(chargingId, percentage);
+                return chargingText + batteryInfo;
+            }
         } else {
-            String chargingText =  mContext.getResources().getString(chargingId, percentage);
-            return chargingText + batteryInfo;
+            return batteryInfo;
         }
     }
 
