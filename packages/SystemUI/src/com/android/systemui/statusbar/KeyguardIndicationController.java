@@ -1002,36 +1002,42 @@ public class KeyguardIndicationController {
 
         if (showbatteryInfo) {
             if (batteryManager != null) {
-                int chargingCurrent = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
                 IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
                 Intent batteryStatus = mContext.registerReceiver(null, ifilter);
-                int chargingVoltage = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0)
-                        : 0;
-                int chargingTemperature = batteryStatus != null
-                        ? batteryStatus.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0)
-                        : 0;
-                double current = chargingCurrent / 1000.0;
-                double voltage = chargingVoltage / 1000.0;
-                double power = voltage * (current / 1000.0);
-                int currentInMilliamps = (int) current;
 
-                currentInMilliamps = Math.max(currentInMilliamps, 0);
-                power = Math.max(power, 0);
-                voltage = Math.max(voltage, 0);
+                int chargingCurrentMicroAmp = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
+                double chargingVoltageMilliVolt = batteryStatus.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1);
+                int chargingTemperatureDeciCelsius = batteryStatus.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0);
 
-                batteryInfo = currentInMilliamps + "mA";
-                batteryInfo += " · " + String.format("%.1f", power) + "W";
-                batteryInfo += " · " + String.format("%.1f", voltage) + "V";
-
-                if (chargingTemperature > Integer.MIN_VALUE) {
-                    double temperature = chargingTemperature / 10.0;
-                    temperature = Math.max(temperature, 0);
-                    batteryInfo += " · " + temperature + "°C";
+                if (chargingCurrentMicroAmp <= 0 && mChargingCurrent > 0) {
+                    chargingCurrentMicroAmp = mChargingCurrent > 250000 ? mChargingCurrent / 1000 : mChargingCurrent;
+                }
+                if (chargingVoltageMilliVolt <= 0 && mChargingVoltage > 0) {
+                    chargingVoltageMilliVolt = mChargingVoltage;
                 }
 
-                if (!batteryInfo.isEmpty()) {
-                    batteryInfo = "\n" + batteryInfo;
+                double currentMilliAmp = chargingCurrentMicroAmp / 1000.0;
+                double voltageVolt = chargingVoltageMilliVolt / 1000.0;
+                double powerWatt = voltageVolt * (currentMilliAmp / 1000.0);
+
+                voltageVolt = Math.max(voltageVolt, 0);
+
+                StringBuilder batteryInfoBuilder = new StringBuilder();
+                batteryInfoBuilder.append((int) currentMilliAmp).append("mA");
+                batteryInfoBuilder.append(" · ").append(String.format("%.1f", powerWatt)).append("W");
+                batteryInfoBuilder.append(" · ").append(String.format("%.1f", voltageVolt)).append("V");
+
+                if (chargingTemperatureDeciCelsius > Integer.MIN_VALUE) {
+                    double temperatureCelsius = chargingTemperatureDeciCelsius / 10.0;
+                    temperatureCelsius = Math.max(temperatureCelsius, 0);
+                    batteryInfoBuilder.append(" · ").append(temperatureCelsius).append("°C");
                 }
+
+                if (batteryInfoBuilder.length() > 0) {
+                    batteryInfoBuilder.insert(0, "\n");
+                }
+
+                batteryInfo = batteryInfoBuilder.toString();
             }
         }
 
