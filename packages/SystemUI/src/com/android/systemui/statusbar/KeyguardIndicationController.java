@@ -64,6 +64,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
@@ -999,6 +1000,8 @@ public class KeyguardIndicationController {
 
         boolean showbatteryInfo = Settings.System.getIntForUser(mContext.getContentResolver(),
                 Settings.System.LOCKSCREEN_BATTERY_INFO, 1, UserHandle.USER_CURRENT) == 1;
+                
+        int mChargingCurrentDivisor = SystemProperties.getInt("persist.sys.charging_divisor", 1);
 
         if (showbatteryInfo) {
             if (batteryManager != null) {
@@ -1010,7 +1013,7 @@ public class KeyguardIndicationController {
                 int chargingTemperatureDeciCelsius = batteryStatus.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0);
 
                 if (chargingCurrentMicroAmp <= 0 && mChargingCurrent > 0) {
-                    chargingCurrentMicroAmp = mChargingCurrent > 250000 ? mChargingCurrent / 1000 : mChargingCurrent;
+                    chargingCurrentMicroAmp = mChargingCurrent / mChargingCurrentDivisor;
                 }
                 if (chargingVoltageMilliVolt <= 0 && mChargingVoltage > 0) {
                     chargingVoltageMilliVolt = mChargingVoltage;
