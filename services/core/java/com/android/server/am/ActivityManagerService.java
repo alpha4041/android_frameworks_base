@@ -5485,11 +5485,8 @@ public class ActivityManagerService extends IActivityManager.Stub
 
     @Override
     public boolean isIntentSenderTargetedToPackage(IIntentSender pendingResult) {
-        if (!(pendingResult instanceof PendingIntentRecord)) {
-            return false;
-        }
-        try {
-            PendingIntentRecord res = (PendingIntentRecord)pendingResult;
+        if (pendingResult instanceof PendingIntentRecord) {
+            PendingIntentRecord res = (PendingIntentRecord) pendingResult;
             if (res.key.allIntents == null) {
                 return false;
             }
@@ -5500,23 +5497,18 @@ public class ActivityManagerService extends IActivityManager.Stub
                 }
             }
             return true;
-        } catch (ClassCastException e) {
         }
         return false;
     }
 
     @Override
     public boolean isIntentSenderAnActivity(IIntentSender pendingResult) {
-        if (!(pendingResult instanceof PendingIntentRecord)) {
-            return false;
-        }
-        try {
-            PendingIntentRecord res = (PendingIntentRecord)pendingResult;
+        if (pendingResult instanceof PendingIntentRecord) {
+            PendingIntentRecord res = (PendingIntentRecord) pendingResult;
             if (res.key.type == ActivityManager.INTENT_SENDER_ACTIVITY) {
                 return true;
             }
             return false;
-        } catch (ClassCastException e) {
         }
         return false;
     }
@@ -5525,13 +5517,9 @@ public class ActivityManagerService extends IActivityManager.Stub
     public Intent getIntentForIntentSender(IIntentSender pendingResult) {
         enforceCallingPermission(Manifest.permission.GET_INTENT_SENDER_INTENT,
                 "getIntentForIntentSender()");
-        if (!(pendingResult instanceof PendingIntentRecord)) {
-            return null;
-        }
-        try {
-            PendingIntentRecord res = (PendingIntentRecord)pendingResult;
+        if (pendingResult instanceof PendingIntentRecord) {
+            PendingIntentRecord res = (PendingIntentRecord) pendingResult;
             return res.key.requestIntent != null ? new Intent(res.key.requestIntent) : null;
-        } catch (ClassCastException e) {
         }
         return null;
     }
@@ -5543,9 +5531,9 @@ public class ActivityManagerService extends IActivityManager.Stub
                 "queryIntentComponentsForIntentSender()");
         Objects.requireNonNull(pendingResult);
         final PendingIntentRecord res;
-        try {
+        if (pendingResult instanceof PendingIntentRecord) {
             res = (PendingIntentRecord) pendingResult;
-        } catch (ClassCastException e) {
+        } else {
             return null;
         }
         final Intent intent = res.key.requestIntent;
@@ -5573,15 +5561,11 @@ public class ActivityManagerService extends IActivityManager.Stub
 
     @Override
     public String getTagForIntentSender(IIntentSender pendingResult, String prefix) {
-        if (!(pendingResult instanceof PendingIntentRecord)) {
-            return null;
-        }
-        try {
+        if (pendingResult instanceof PendingIntentRecord) {
             PendingIntentRecord res = (PendingIntentRecord)pendingResult;
             synchronized (this) {
                 return getTagForIntentSenderLocked(res, prefix);
             }
-        } catch (ClassCastException e) {
         }
         return null;
     }

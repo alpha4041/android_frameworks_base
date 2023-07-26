@@ -10378,15 +10378,15 @@ public abstract class PackageManager {
 
         @Override
         public boolean equals(@Nullable Object rval) {
-            if (rval == null) {
+            if (this == rval) {
+                return true;
+            }
+            if (!(rval instanceof ApplicationInfoQuery)) {
                 return false;
             }
-            ApplicationInfoQuery other;
-            try {
-                other = (ApplicationInfoQuery) rval;
-            } catch (ClassCastException ex) {
-                return false;
-            }
+
+            ApplicationInfoQuery other = (ApplicationInfoQuery) rval;
+
             return Objects.equals(packageName, other.packageName)
                     && flags == other.flags
                     && userId == other.userId;
@@ -10480,15 +10480,15 @@ public abstract class PackageManager {
 
         @Override
         public boolean equals(@Nullable Object rval) {
-            if (rval == null) {
+            if (this == rval) {
+                return true;
+            }
+            if (!(rval instanceof PackageInfoQuery)) {
                 return false;
             }
-            PackageInfoQuery other;
-            try {
-                other = (PackageInfoQuery) rval;
-            } catch (ClassCastException ex) {
-                return false;
-            }
+
+            PackageInfoQuery other = (PackageInfoQuery) rval;
+
             return Objects.equals(packageName, other.packageName)
                     && flags == other.flags
                     && userId == other.userId;

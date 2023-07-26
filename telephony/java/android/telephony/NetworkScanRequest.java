@@ -240,18 +240,16 @@ public final class NetworkScanRequest implements Parcelable {
     }
 
     @Override
-    public boolean equals (Object o) {
-        NetworkScanRequest nsr;
-
-        try {
-            nsr = (NetworkScanRequest) o;
-        } catch (ClassCastException ex) {
-            return false;
-        }
-
+    public boolean equals(Object o) {
         if (o == null) {
             return false;
         }
+
+        if (!(o instanceof NetworkScanRequest)) {
+            return false;
+        }
+
+        NetworkScanRequest nsr = (NetworkScanRequest) o;
 
         return (mScanType == nsr.mScanType
                 && Arrays.equals(mSpecifiers, nsr.mSpecifiers)
@@ -259,8 +257,7 @@ public final class NetworkScanRequest implements Parcelable {
                 && mMaxSearchTime == nsr.mMaxSearchTime
                 && mIncrementalResults == nsr.mIncrementalResults
                 && mIncrementalResultsPeriodicity == nsr.mIncrementalResultsPeriodicity
-                && (((mMccMncs != null)
-                && mMccMncs.equals(nsr.mMccMncs))));
+                && ((mMccMncs == null && nsr.mMccMncs == null) || (mMccMncs != null && mMccMncs.equals(nsr.mMccMncs))));
     }
 
     @Override

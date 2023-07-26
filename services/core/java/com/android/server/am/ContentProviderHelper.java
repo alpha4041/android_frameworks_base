@@ -763,17 +763,20 @@ public class ContentProviderHelper {
         mService.enforceNotIsolatedOrSdkSandboxCaller("removeContentProvider");
         final long ident = Binder.clearCallingIdentity();
         try {
-            ContentProviderConnection conn;
-            try {
+            ContentProviderConnection conn = null;
+            if (connection instanceof ContentProviderConnection) {
                 conn = (ContentProviderConnection) connection;
-            } catch (ClassCastException e) {
+            } else {
+                if (connection == null) {
+                    throw new NullPointerException("connection is null");
+                }
                 String msg = "removeContentProvider: " + connection
                         + " not a ContentProviderConnection";
                 Slog.w(TAG, msg);
                 throw new IllegalArgumentException(msg);
             }
             if (conn == null) {
-                throw new NullPointerException("connection is null");
+                throw new NullPointerException("conn is null");
             }
             ActivityManagerService.traceBegin(Trace.TRACE_TAG_ACTIVITY_MANAGER,
                     "removeContentProvider: ",
@@ -833,16 +836,19 @@ public class ContentProviderHelper {
     }
 
     boolean refContentProvider(IBinder connection, int stable, int unstable) {
-        ContentProviderConnection conn;
-        try {
+        ContentProviderConnection conn = null;
+        if (connection instanceof ContentProviderConnection) {
             conn = (ContentProviderConnection) connection;
-        } catch (ClassCastException e) {
+       } else {
+            if (connection == null) {
+                throw new NullPointerException("connection is null");
+            }
             String msg = "refContentProvider: " + connection + " not a ContentProviderConnection";
             Slog.w(TAG, msg);
             throw new IllegalArgumentException(msg);
         }
         if (conn == null) {
-            throw new NullPointerException("connection is null");
+            throw new NullPointerException("conn is null");
         }
 
         ActivityManagerService.traceBegin(Trace.TRACE_TAG_ACTIVITY_MANAGER, "refContentProvider: ",
@@ -857,16 +863,19 @@ public class ContentProviderHelper {
     }
 
     void unstableProviderDied(IBinder connection) {
-        ContentProviderConnection conn;
-        try {
+        ContentProviderConnection conn = null;
+        if (connection instanceof ContentProviderConnection) {
             conn = (ContentProviderConnection) connection;
-        } catch (ClassCastException e) {
+        } else {
+            if (connection == null) {
+                throw new NullPointerException("connection is null");
+            }
             String msg = "refContentProvider: " + connection + " not a ContentProviderConnection";
             Slog.w(TAG, msg);
             throw new IllegalArgumentException(msg);
         }
         if (conn == null) {
-            throw new NullPointerException("connection is null");
+            throw new NullPointerException("conn is null");
         }
 
         ActivityManagerService.traceBegin(Trace.TRACE_TAG_ACTIVITY_MANAGER,

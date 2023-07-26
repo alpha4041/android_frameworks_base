@@ -140,51 +140,25 @@ public final class PendingIntentRecord extends IIntentSender.Stub {
 
         @Override
         public boolean equals(Object otherObj) {
-            if (otherObj == null) {
+            if (this == otherObj) {
+                return true;
+            }
+            if (!(otherObj instanceof Key)) {
                 return false;
             }
-            try {
-                Key other = (Key)otherObj;
-                if (type != other.type) {
-                    return false;
-                }
-                if (userId != other.userId){
-                    return false;
-                }
-                if (!Objects.equals(packageName, other.packageName)) {
-                    return false;
-                }
-                if (!Objects.equals(featureId, other.featureId)) {
-                    return false;
-                }
-                if (activity != other.activity) {
-                    return false;
-                }
-                if (!Objects.equals(who, other.who)) {
-                    return false;
-                }
-                if (requestCode != other.requestCode) {
-                    return false;
-                }
-                if (requestIntent != other.requestIntent) {
-                    if (requestIntent != null) {
-                        if (!requestIntent.filterEquals(other.requestIntent)) {
-                            return false;
-                        }
-                    } else if (other.requestIntent != null) {
-                        return false;
-                    }
-                }
-                if (!Objects.equals(requestResolvedType, other.requestResolvedType)) {
-                    return false;
-                }
-                if (flags != other.flags) {
-                    return false;
-                }
-                return true;
-            } catch (ClassCastException e) {
-            }
-            return false;
+
+            Key other = (Key) otherObj;
+
+            return type == other.type
+                    && userId == other.userId
+                    && Objects.equals(packageName, other.packageName)
+                    && Objects.equals(featureId, other.featureId)
+                    && activity == other.activity
+                    && Objects.equals(who, other.who)
+                    && requestCode == other.requestCode
+                    && Objects.equals(requestIntent, other.requestIntent)
+                    && Objects.equals(requestResolvedType, other.requestResolvedType)
+                    && flags == other.flags;
         }
 
         public int hashCode() {

@@ -631,13 +631,11 @@ public final class Message implements Parcelable {
         dest.writeInt(arg1);
         dest.writeInt(arg2);
         if (obj != null) {
-            try {
-                Parcelable p = (Parcelable)obj;
+            if (obj instanceof Parcelable) {
                 dest.writeInt(1);
-                dest.writeParcelable(p, flags);
-            } catch (ClassCastException e) {
-                throw new RuntimeException(
-                    "Can't marshal non-Parcelable objects across processes.");
+                dest.writeParcelable((Parcelable) obj, flags);
+            } else {
+                throw new RuntimeException("Can't marshal non-Parcelable objects across processes.");
             }
         } else {
             dest.writeInt(0);

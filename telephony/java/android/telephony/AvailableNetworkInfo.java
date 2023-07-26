@@ -209,17 +209,15 @@ public final class AvailableNetworkInfo implements Parcelable {
 
     @Override
     public boolean equals(Object o) {
-        AvailableNetworkInfo ani;
-
-        try {
-            ani = (AvailableNetworkInfo) o;
-        } catch (ClassCastException ex) {
-            return false;
-        }
-
         if (o == null) {
             return false;
         }
+
+        if (!(o instanceof AvailableNetworkInfo)) {
+            return false;
+        }
+
+        AvailableNetworkInfo ani = (AvailableNetworkInfo) o;
 
         return (mSubId == ani.mSubId
             && mPriority == ani.mPriority

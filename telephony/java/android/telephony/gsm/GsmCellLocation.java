@@ -108,20 +108,17 @@ public class GsmCellLocation extends CellLocation {
 
     @Override
     public boolean equals(Object o) {
-        GsmCellLocation s;
-
-        try {
-            s = (GsmCellLocation)o;
-        } catch (ClassCastException ex) {
-            return false;
-        }
-
         if (o == null) {
             return false;
         }
 
-        return equalsHandlesNulls(mLac, s.mLac) && equalsHandlesNulls(mCid, s.mCid)
-            && equalsHandlesNulls(mPsc, s.mPsc);
+        if (!(o instanceof GsmCellLocation)) {
+            return false;
+        }
+
+        GsmCellLocation s = (GsmCellLocation) o;
+
+        return equalsHandlesNulls(mLac, s.mLac) && equalsHandlesNulls(mCid, s.mCid) && equalsHandlesNulls(mPsc, s.mPsc);
     }
 
     @Override
@@ -137,7 +134,7 @@ public class GsmCellLocation extends CellLocation {
      * @return true if two objects equal or both are null
      */
     private static boolean equalsHandlesNulls(Object a, Object b) {
-        return (a == null) ? (b == null) : a.equals (b);
+        return (a == null) ? (b == null) : a.equals(b);
     }
 
     /**

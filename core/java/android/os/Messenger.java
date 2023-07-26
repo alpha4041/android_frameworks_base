@@ -74,15 +74,15 @@ public final class Messenger implements Parcelable {
      * is returned then they both point to the same Handler.
      */
     public boolean equals(@Nullable Object otherObj) {
-        if (otherObj == null) {
+        if (this == otherObj) {
+            return true;
+        }
+        if (!(otherObj instanceof Messenger)) {
             return false;
         }
-        try {
-            return mTarget.asBinder().equals(((Messenger)otherObj)
-                    .mTarget.asBinder());
-        } catch (ClassCastException e) {
-        }
-        return false;
+
+        Messenger other = (Messenger) otherObj;
+        return mTarget.equals(other.mTarget);
     }
 
     public int hashCode() {

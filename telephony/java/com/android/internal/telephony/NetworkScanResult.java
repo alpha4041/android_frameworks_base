@@ -88,18 +88,16 @@ public final class NetworkScanResult implements Parcelable {
     }
 
     @Override
-    public boolean equals (Object o) {
-        NetworkScanResult nsr;
-
-        try {
-            nsr = (NetworkScanResult) o;
-        } catch (ClassCastException ex) {
-            return false;
-        }
-
+    public boolean equals(Object o) {
         if (o == null) {
             return false;
         }
+
+        if (!(o instanceof NetworkScanResult)) {
+            return false;
+        }
+
+        NetworkScanResult nsr = (NetworkScanResult) o;
 
         return (scanStatus == nsr.scanStatus
                 && scanError == nsr.scanError

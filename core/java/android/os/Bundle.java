@@ -840,12 +840,14 @@ public final class Bundle extends BaseBundle implements Cloneable, Parcelable {
     public Size getSize(@Nullable String key) {
         unparcel();
         final Object o = mMap.get(key);
-        try {
-            return (Size) o;
-        } catch (ClassCastException e) {
-            typeWarning(key, o, "Size", e);
+        if (o == null) {
             return null;
         }
+        if (o instanceof Size) {
+            return (Size) o;
+        }
+        typeWarning(key, o, "Size", new ClassCastException());
+        return null;
     }
 
     /**
@@ -860,12 +862,14 @@ public final class Bundle extends BaseBundle implements Cloneable, Parcelable {
     public SizeF getSizeF(@Nullable String key) {
         unparcel();
         final Object o = mMap.get(key);
-        try {
-            return (SizeF) o;
-        } catch (ClassCastException e) {
-            typeWarning(key, o, "SizeF", e);
+        if (o == null) {
             return null;
         }
+        if (o instanceof SizeF) {
+            return (SizeF) o;
+        }
+        typeWarning(key, o, "SizeF", new ClassCastException());
+        return null;
     }
 
     /**
@@ -883,12 +887,11 @@ public final class Bundle extends BaseBundle implements Cloneable, Parcelable {
         if (o == null) {
             return null;
         }
-        try {
+        if (o instanceof Bundle) {
             return (Bundle) o;
-        } catch (ClassCastException e) {
-            typeWarning(key, o, "Bundle", e);
-            return null;
         }
+        typeWarning(key, o, "Bundle", new ClassCastException());
+        return null;
     }
 
     /**
@@ -914,12 +917,11 @@ public final class Bundle extends BaseBundle implements Cloneable, Parcelable {
         if (o == null) {
             return null;
         }
-        try {
+        if (o instanceof Parcelable) {
             return (T) o;
-        } catch (ClassCastException e) {
-            typeWarning(key, o, "Parcelable", e);
-            return null;
         }
+        typeWarning(key, o, "Parcelable", new ClassCastException());
+        return null;
     }
 
     /**

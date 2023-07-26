@@ -1573,15 +1573,15 @@ public final class PermissionManager {
         @Override
         public boolean equals(@Nullable Object rval) {
             // N.B. pid doesn't count toward equality!
-            if (rval == null) {
+            if (this == rval) {
+                return true;
+            }
+            if (!(rval instanceof PermissionQuery)) {
                 return false;
             }
-            PermissionQuery other;
-            try {
-                other = (PermissionQuery) rval;
-            } catch (ClassCastException ex) {
-                return false;
-            }
+
+            PermissionQuery other = (PermissionQuery) rval;
+
             return uid == other.uid
                     && Objects.equals(permission, other.permission);
         }
